@@ -1,3 +1,4 @@
 1. do git plugins for vim
 2. vim Dracula themeing for the more file types
 3. vim dracula themeing for terminal
+4. Fix dracula themeing for tmux to be consistent with vim
