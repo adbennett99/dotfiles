@@ -1,2 +1,3 @@
 5. Get git plugins
 6. Dracula themeing for the actual file contents
+  - Set the dracula theme colors via the dracula.vim file rather than in status_line.vim. Link them through color groups
