@@ -52,4 +52,4 @@ augroup remember_folds
 augroup END
 
 " Pull in my other vim files
-source ~/.vim/status_line.vim
+source ~/.vim/status_lines.vim
