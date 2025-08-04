@@ -1,33 +1,3 @@
-" Based on https://github.com/vim-airline/vim-airline
-" -------------------------------------------------------------- Theme
-" Dracula Color Palette
-let s:white        = "231"
-let s:gray         = "239"
-let s:dark_gray    = "235"
-let s:light_purple = "141"
-let s:dark_purple  = "61"
-let s:cyan         = "117"
-let s:green        = "84"
-let s:orange       = "215"
-let s:red          = "203"
-let s:purple       = "135"
-let s:pink         = "212"
-let s:yellow       = "228"
-let s:black        = "16"
-
-execute 'highlight StatusModeDefault ctermfg='. s:black . ' ctermbg=' . s:light_purple
-execute 'highlight StatusModeInsert ctermfg='. s:black . ' ctermbg=' . s:green
-execute 'highlight StatusModeVisual ctermfg='. s:black . ' ctermbg=' . s:yellow
-
-execute 'highlight GitBranch ctermfg='. s:white . ' ctermbg=' . s:dark_purple
-execute 'highlight FileName ctermfg='. s:white . ' ctermbg=' . s:gray
-execute 'highlight FileType ctermfg='. s:white . ' ctermbg=' . s:dark_purple
-
-execute 'highlight TabLineSel ctermfg='. s:black . ' ctermbg=' . s:light_purple
-execute 'highlight TabLineNotSel ctermfg='. s:white . ' ctermbg=' . s:gray
-execute 'highlight TabLineFill ctermfg=' . s:dark_gray . ' ctermbg=' . s:dark_gray
-execute 'highlight TabLineEnd ctermfg='. s:white . ' ctermbg=' . s:dark_purple
-
 " -------------------------------------------------------------- Status Line
 function! ModeName()
     let l:mode_map = {
@@ -59,13 +29,13 @@ endfunction
 
 function! ModeHighlight()
     let l:highlight_map = {
-        \ 'n'  : 'StatusModeDefault',
-        \ 'i'  : 'StatusModeInsert',
-        \ 'v'  : 'StatusModeVisual',
-        \ 'V'  : 'StatusModeVisual',
-        \ "\<C-v>" : 'StatusModeVisual',
+        \ 'n'  : 'DraculaStatusModeDefault',
+        \ 'i'  : 'DraculaStatusModeInsert',
+        \ 'v'  : 'DraculaStatusModeVisual',
+        \ 'V'  : 'DraculaStatusModeVisual',
+        \ "\<C-v>" : 'DraculaStatusModeVisual',
         \}
-    return '%#' . get(l:highlight_map, mode(), 'StatusModeDefault') . '#'
+    return '%#' . get(l:highlight_map, mode(), 'DraculaStatusModeDefault') . '#'
 endfunction
 
 function! GetGitInfo()
@@ -89,10 +59,10 @@ function! BuildStatusLine()
     let s .= '%#GitBranch#'
     let s .= GetGitInfo()
 
-    let s .= '%#FileName#'
+    let s .= '%#DraculaStatusFileName#'
     let s .= ' %f%m%='
 
-    let s .= '%#FileType#'
+    let s .= '%#DraculaStatusFileType#'
     let s .= ' %{&filetype} '
 
     let s .= ModeHighlight()
