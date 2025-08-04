@@ -1,4 +1,5 @@
 " Based on https://github.com/vim-airline/vim-airline
+" Based on https://github.com/vim-airline/vim-airline
 " -------------------------------------------------------------- Status Line
 function! ModeName()
     let l:mode_map = {
@@ -57,7 +58,7 @@ function! BuildStatusLine()
     let s = ''
     let s .= ModeHighlight() . ' ' . ModeName() . ' '
 
-    let s .= '%#GitBranch#'
+    let s .= '%#DraculaStatusGitBranch#'
     let s .= GetGitInfo()
 
     let s .= '%#DraculaStatusFileName#'
@@ -81,7 +82,7 @@ function! BuildTabLine()
     let s = ''
     for i in range(1, bufnr('$'))
         if bufexists(i) && buflisted(i)
-            let s .= (i == bufnr('%') ? '%#TabLineSel#' : '%#TabLineNotSel#')
+            let s .= (i == bufnr('%') ? '%#DraculaTabLineSel#' : '%#DraculaTabLineNotSel#')
             let s .= ' ' . bufname(i)
 
             if getbufvar(i, '&modified')
@@ -91,8 +92,8 @@ function! BuildTabLine()
             let s .= ' '
         endif
     endfor
-    let s .= '%#TabLineFill#%='
-    let s .= '%#TabLineEnd# buffers '
+    let s .= '%#DraculaTabLineFill#%='
+    let s .= '%#DraculaTabLineEnd# buffers '
     return s
 endfunction
 
