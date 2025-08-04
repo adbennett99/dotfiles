@@ -19,9 +19,9 @@ execute 'highlight StatusModeDefault ctermfg='. s:black . ' ctermbg=' . s:light_
 execute 'highlight StatusModeInsert ctermfg='. s:black . ' ctermbg=' . s:green
 execute 'highlight StatusModeVisual ctermfg='. s:black . ' ctermbg=' . s:yellow
 
+execute 'highlight GitBranch ctermfg='. s:white . ' ctermbg=' . s:dark_purple
 execute 'highlight FileName ctermfg='. s:white . ' ctermbg=' . s:gray
 execute 'highlight FileType ctermfg='. s:white . ' ctermbg=' . s:dark_purple
-execute 'highlight FileLoc ctermfg='. s:black . ' ctermbg=' . s:light_purple
 
 execute 'highlight TabLineSel ctermfg='. s:black . ' ctermbg=' . s:light_purple
 execute 'highlight TabLineNotSel ctermfg='. s:white . ' ctermbg=' . s:gray
@@ -30,7 +30,7 @@ execute 'highlight TabLineEnd ctermfg='. s:white . ' ctermbg=' . s:dark_purple
 
 " -------------------------------------------------------------- Status Line
 function! ModeName()
-  let l:mode_map = {
+    let l:mode_map = {
         \ 'n'  : 'NORMAL',
         \ 'no' : 'OPERATOR PENDING',
         \ 'v'  : 'VISUAL',
@@ -54,31 +54,48 @@ function! ModeName()
         \ 't'  : 'TERMINAL'
         \ }
 
-  return get(l:mode_map, mode(), mode())
+    return get(l:mode_map, mode(), mode())
 endfunction
 
 function! ModeHighlight()
-  let l:highlight_map = {
+    let l:highlight_map = {
         \ 'n'  : 'StatusModeDefault',
         \ 'i'  : 'StatusModeInsert',
         \ 'v'  : 'StatusModeVisual',
         \ 'V'  : 'StatusModeVisual',
         \ "\<C-v>" : 'StatusModeVisual',
         \}
-  return '%#' . get(l:highlight_map, mode(), 'StatusModeDefault') . '#'
+    return '%#' . get(l:highlight_map, mode(), 'StatusModeDefault') . '#'
+endfunction
+
+function! GetGitInfo()
+    let l:dir = expand('%:p:h')
+    while !isdirectory(l:dir . '/.git') && l:dir != '/'
+        let l:dir = fnamemodify(l:dir, ':h')
+    endwhile
+
+    if !isdirectory(l:dir . '/.git')
+        return ''
+    endif
+
+    let l:branch = system('git -C ' . shellescape(l:dir) . ' rev-parse --abbrev-ref HEAD')
+    return ' ⎇  ' . substitute(l:branch, '\n', '', '') . ' '
 endfunction
 
 function! BuildStatusLine()
     let s = ''
-    let s .= ModeHighlight() . ModeName()
+    let s .= ModeHighlight() . ' ' . ModeName() . ' '
+
+    let s .= '%#GitBranch#'
+    let s .= GetGitInfo()
 
     let s .= '%#FileName#'
-    let s .= ' %f%='
+    let s .= ' %f%m%='
 
     let s .= '%#FileType#'
     let s .= ' %{&filetype} '
 
-    let s .= '%#FileLoc#'
+    let s .= ModeHighlight()
     let s .= ' In: %l/%L (%c)'
 
     return s
@@ -86,21 +103,27 @@ endfunction
 
 set laststatus=2
 
-let &statusline = BuildStatusLine()
+let &statusline = "%!BuildStatusLine()"
 
 " -------------------------------------------------------------- Tab Line
 function! BuildTabLine()
-  let s = ''
-  for i in range(1, bufnr('$'))
-    if bufexists(i) && buflisted(i)
-      let s .= (i == bufnr('%') ? '%#TabLineSel#' : '%#TabLineNotSel#')
-      let s .= ' ' . bufname(i) . ' '
-    endif
-  endfor
-  let s .= '%#TabLineFill#%='
-  let s .= '%#TabLineEnd# buffers '
-  return s
+    let s = ''
+    for i in range(1, bufnr('$'))
+        if bufexists(i) && buflisted(i)
+            let s .= (i == bufnr('%') ? '%#TabLineSel#' : '%#TabLineNotSel#')
+            let s .= ' ' . bufname(i)
+
+            if getbufvar(i, '&modified')
+                let s .= '[+]'
+            endif
+
+            let s .= ' '
+        endif
+    endfor
+    let s .= '%#TabLineFill#%='
+    let s .= '%#TabLineEnd# buffers '
+    return s
 endfunction
 
 set showtabline=2
-let &tabline = BuildTabLine()
+let &tabline = "%!BuildTabLine()"
