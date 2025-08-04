@@ -1,3 +1,4 @@
+" Based on https://github.com/vim-airline/vim-airline
 " -------------------------------------------------------------- Status Line
 function! ModeName()
     let l:mode_map = {
