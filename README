@@ -1,0 +1,7 @@
+1. Tabline isn't changing colors anymore
+2. Vim mode no longer chaning in bottom left
+3. Need to show if a file has been modified and not saved (just regular editing)
+  - Both in buffer view and the status line bar item
+4. Show branch info in status line
+5. Get git plugins
+6. Dracula themeing for the actual file contents
