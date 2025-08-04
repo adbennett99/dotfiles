@@ -1,0 +1,55 @@
+set nocompatible
+set encoding=utf-8
+set mouse=a
+
+" Styling
+syntax on
+
+set showmatch
+
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+set smartindent
+set autoindent
+
+set number
+set relativenumber
+
+" Tab completion
+set wildmode=longest,list,full
+set wildmenu
+
+" Searching
+set incsearch
+set hlsearch
+
+" Better keybindings for gettings out of modes
+inoremap kj <esc>
+vnoremap kj <esc>
+
+" Better keybindings for buffer management
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
+
+" Better keybindings for yanking/pastring to/from system clipboard
+nnoremap <leader>p "+p
+vnoremap <leader>p "+p
+
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y
+
+" Setup cold folding. Use space bar to fold. Folds should save when closing buffer
+set foldmethod=indent
+set foldlevel=99
+nnoremap <space> za
+
+augroup remember_folds
+    autocmd!
+    autocmd BufWinLeave * mkview
+    autocmd BufWinEnter * silent! loadview
+augroup END
+
+" Pull in my other vim files
+source ~/.vim/status_line.vim
