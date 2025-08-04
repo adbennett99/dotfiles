@@ -2,3 +2,4 @@
 2. vim Dracula themeing for the more file types
 3. dracula themeing for terminal
 4. Fix dracula themeing for tmux to be consistent with vim
+5. Fix folding in vimrc
