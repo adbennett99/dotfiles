@@ -4,13 +4,6 @@ sign define GitAddedLine text=+ texthl=DraculaGreen
 sign define GitModifiedLine text=~ texthl=DraculaCyan
 sign define GitRemovedLine text=- texthl=DraculaRed
 
-function! IsFileInGitRepo(filepath)
-    let l:filedir = fnamemodify(a:filepath, ':p:h')
-    let l:output = system('git -C ' . shellescape(l:filedir) . ' rev-parse --is-inside-work-tree 2>&1')
-    let l:output = substitute(l:output, '\n\+$', '', '')
-    return l:output ==# 'true' ? 1 : 0
-endfunction
-
 function! PlaceGitSigns()
     let l:filename = expand('%:p')
     let l:filedir = fnamemodify(l:filename, ':h')
