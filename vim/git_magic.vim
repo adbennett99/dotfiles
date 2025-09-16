@@ -123,6 +123,7 @@ augroup end
 function! ShowGitBlame()
     let l:file = expand("%:p")
     let l:dir = fnamemodify(l:file, ':h')
+    let l:view = winsaveview()
 
     let l:isGitFile = s:IsGitFile(l:file, l:dir)
     if !l:isGitFile
@@ -182,6 +183,17 @@ function! ShowGitBlame()
 
     call setline(1, l:blame_output_formatted)
     setlocal nomodifiable
+
+    call winrestview(l:view)
+
+    wincmd p
+    call winrestview(l:view)
+    setlocal scrollbind cursorbind
+
+    wincmd p
+    setlocal scrollbind cursorbind
+
+    set scrollopt=hor,ver
 endfunction
 
 nnoremap <Leader>gb :call ShowGitBlame()<CR>
