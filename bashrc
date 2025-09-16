@@ -1,21 +1,19 @@
 # -------------------------------------------------------------- Prompt
-RESET='\[\033[0m\]'
-GREEN='\[\033[38;5;78m\]'
-BLUE='\[\033[38;5;32m\]'
-LIGHT_BLUE='\[\033[38;5;75m\]'
-MAGENTA='\[\033[38;5;105m\]'
-ORANGE='\[\033[38;5;214m\]'
-
-function prompt_path() {
-  local dir="$PWD"
-  if [[ "$dir" == "$HOME" ]]; then
-    echo "~"
-  elif [[ "$dir" == "$HOME/"* ]]; then
-    echo "~${dir#$HOME}"
-  else
-    echo "$dir"
-  fi
-}
+if [ -n "$ZSH_VERSION" ]; then
+  RESET='%f'
+  GREEN='%F{078}'
+  BLUE='%F{032}'
+  LIGHT_BLUE='%F{075}'
+  MAGENTA='%F{105}'
+  ORANGE='%F{214}'
+elif [ -n "$BASH_VERSION" ]; then
+  RESET='\[\033[0m\]'
+  GREEN='\[\033[38;5;78m\]'
+  BLUE='\[\033[38;5;32m\]'
+  LIGHT_BLUE='\[\033[38;5;75m\]'
+  MAGENTA='\[\033[38;5;105m\]'
+  ORANGE='\[\033[38;5;214m\]'
+fi
 
 function git_branch() {
   if git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -39,13 +37,16 @@ function git_branch() {
   fi
 }
 
-set_prompt() {
-  local path="$(prompt_path)"
-  local gitinfo="$(git_branch)"
-  PS1="${LIGHT_BLUE}[\u@\h]${RESET} ${BLUE}${path}${RESET} ${gitinfo}${MAGENTA}≫${RESET} "
-}
-
-PROMPT_COMMAND=set_prompt
+if [ -n "$BASH_VERSION" ]; then
+  update_ps1() {
+    local branch=$(git_branch)
+    PS1="${LIGHT_BLUE}[\u@\h]${RESET} ${BLUE}\w${RESET} ${branch}${MAGENTA}≫${RESET} "
+  }
+  PROMPT_COMMAND=update_ps1
+elif [ -n "$ZSH_VERSION" ]; then
+  setopt prompt_subst
+  PROMPT='${LIGHT_BLUE}[%n@%m]${RESET} ${BLUE}%~${RESET} $(git_branch)${MAGENTA}≫${RESET} '
+fi
 
 # -------------------------------------------------------------- Aliases
 alias ls='ls --color'
