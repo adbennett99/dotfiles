@@ -1,5 +1,4 @@
 " Based on https://github.com/vim-airline/vim-airline
-" Based on https://github.com/vim-airline/vim-airline
 " -------------------------------------------------------------- Status Line
 function! ModeName()
     let l:mode_map = {
@@ -49,9 +48,17 @@ function! GetGitInfo()
     if !isdirectory(l:dir . '/.git')
         return ''
     endif
+    
+    let l:line = readfile(l:dir . '/.git/HEAD')[0]
+    let l:branch = split(line, '/')[-1]
 
-    let l:branch = system('git -C ' . shellescape(l:dir) . ' rev-parse --abbrev-ref HEAD')
-    return ' ⎇  ' . substitute(l:branch, '\n', '', '') . ' '
+    if exists('g:num_added_lines') && (g:num_added_lines > 0 || g:num_removed_lines > 0 || g:num_modified_lines > 0)
+        let l:git_info = '+' . g:num_added_lines . ' -' . g:num_removed_lines . ' ~' . g:num_modified_lines . ' '
+    else
+        let l:git_info = ''
+    endif
+
+    return ' ⎇  ' . substitute(l:branch, '\n', '', '') . ' ' . l:git_info
 endfunction
 
 function! BuildStatusLine()
@@ -62,19 +69,18 @@ function! BuildStatusLine()
     let s .= GetGitInfo()
 
     let s .= '%#DraculaStatusFileName#'
-    let s .= ' %f%m%='
+    let s .= ' %F%m%=%{&filetype} '
 
-    let s .= '%#DraculaStatusFileType#'
-    let s .= ' %{&filetype} '
+    let s .= '%#DraculaStatusFileEncoding#'
+    let s .= ' %{&fileencoding?&fileencoding:&encoding} '
 
     let s .= ModeHighlight()
-    let s .= ' In: %l/%L (%c)'
+    let s .= ' In: %l/%L (%c) '
 
     return s
 endfunction
 
 set laststatus=2
-
 let &statusline = "%!BuildStatusLine()"
 
 " -------------------------------------------------------------- Tab Line
