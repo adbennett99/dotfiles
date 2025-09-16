@@ -42,7 +42,7 @@ function git_branch() {
 set_prompt() {
   local path="$(prompt_path)"
   local gitinfo="$(git_branch)"
-  PS1="${LIGHT_BLUE}[\u]${RESET} ${BLUE}${path}${RESET} ${gitinfo}${MAGENTA}≫${RESET} "
+  PS1="${LIGHT_BLUE}[\u@\h]${RESET} ${BLUE}${path}${RESET} ${gitinfo}${MAGENTA}≫${RESET} "
 }
 
 PROMPT_COMMAND=set_prompt
