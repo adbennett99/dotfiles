@@ -17,6 +17,8 @@ set autoindent
 set number
 set relativenumber
 
+set cursorline
+
 " Tab completion
 set wildmode=longest,list,full
 set wildmenu
