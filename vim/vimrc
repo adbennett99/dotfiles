@@ -33,12 +33,21 @@ vnoremap kj <esc>
 nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
 
-" Better keybindings for yanking/pastring to/from system clipboard
-nnoremap <leader>p "+p
-vnoremap <leader>p "+p
+" Better keybindings for yanking/pasting to/from system clipboard
+nnoremap <Leader>p "+p
+vnoremap <Leader>p "+p
 
-nnoremap <leader>y "+y
-vnoremap <leader>y "+y
+nnoremap <Leader>y "+y
+vnoremap <Leader>y "+y
+
+" Netrw configs
+let g:netrw_liststyle=3 " Tree View
+let g:netrw_preview=1 " Open previews in vertical split
+let g:netrw_alto=0 " Open previews in vertical split to right
+let g:netrw_altv=1 " Right split when opening file
+let g:netrw_keepdir=0 " netrw to open relative to cwd, rather than where vim was started
+
+nnoremap <Leader>e :Explore .<CR>
 
 " Setup cold folding. Use space bar to fold. Folds should save when closing buffer
 set foldmethod=indent
@@ -53,4 +62,6 @@ augroup END
 
 " Pull in my other vim files
 source ~/.vim/dracula_colors.vim
+source ~/.vim/git_magic.vim
 source ~/.vim/status_line.vim
+source ~/.vim/fuzzy_finder.vim
