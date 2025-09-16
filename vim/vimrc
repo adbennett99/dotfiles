@@ -61,7 +61,7 @@ augroup remember_folds
 augroup END
 
 " Pull in my other vim files
-source ~/.vim/dracula_colors.vim
-source ~/.vim/git_magic.vim
-source ~/.vim/status_line.vim
-source ~/.vim/fuzzy_finder.vim
+source ~/Documents/repos/dotfiles/vim/dracula_colors.vim
+source ~/Documents/repos/dotfiles/vim/git_magic.vim
+source ~/Documents/repos/dotfiles/vim/status_line.vim
+source ~/Documents/repos/dotfiles/vim/fuzzy_finder.vim
