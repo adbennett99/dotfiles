@@ -50,8 +50,7 @@ call s:h('DraculaStatusModeInsert', s:bglight, s:green, ['bold'])
 call s:h('DraculaStatusModeVisual', s:bglight, s:yellow, ['bold'])
 call s:h('DraculaStatusGitBranch', s:fg, s:comment)
 call s:h('DraculaStatusFileName', s:fg, s:bglighter)
-call s:h('DraculaStatusFileType', s:fg, s:comment)
-
+call s:h('DraculaStatusFileEncoding', s:fg, s:comment)
 
 
 call s:h('DraculaBgLight', s:none, s:bglight)
@@ -115,10 +114,7 @@ call s:h('DraculaInlayHint', s:comment, s:bgdark)
 
 " -------------------------------------------------------------- Bindings
 call s:h('Normal', s:fg, s:none)
-call s:h('StatusLine', s:none, s:bglighter, ['bold'])
 call s:h('StatusLineNC', s:none, s:bglight)
-call s:h('StatusLineTerm', s:none, s:bglighter, ['bold'])
-call s:h('StatusLineTermNC', s:none, s:bglight)
 call s:h('WildMenu', s:bg, s:purple, ['bold'])
 call s:h('CursorLine', s:none, s:subtle)
 
