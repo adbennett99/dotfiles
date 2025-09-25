@@ -24,6 +24,7 @@ set hlsearch
 " Searching system for files 
 set wildmenu
 set path+=**
+nnoremap <leader>f :find 
 
 " Change keybinding for getting out of modes 
 inoremap kj <esc>
