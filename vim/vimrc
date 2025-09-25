@@ -31,6 +31,7 @@ set hlsearch
 filetype plugin on
 set completeopt=menu,menuone,noselect
 
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <Nul> <C-x><C-o>
