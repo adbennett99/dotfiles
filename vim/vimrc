@@ -4,7 +4,6 @@ set mouse=a
 
 " Styling
 syntax on
-
 set showmatch
 
 set tabstop=4
@@ -16,7 +15,6 @@ set autoindent
 
 set number
 set relativenumber
-
 set cursorline
 
 " Tab completion
@@ -60,9 +58,9 @@ nnoremap <C-l> <C-W>l
 " Netrw configs
 let g:netrw_liststyle=3 " Tree View
 let g:netrw_preview=1 " Open previews in vertical split
-let g:netrw_alto=0 " Open previews in vertical split to right
-let g:netrw_altv=1 " Right split when opening file
-let g:netrw_keepdir=0 " netrw to open relative to cwd, rather than where vim was started
+let g:netrw_alto=0 " Open preview in vertical split
+let g:netrw_altv=1 " Open vertical splits to right of current buffer
+let g:netrw_keepdir=0 " Use vim CWD
 
 nnoremap <Leader>e :Explore .<CR>
 
@@ -76,6 +74,25 @@ augroup remember_folds
     autocmd BufWinLeave * mkview
     autocmd BufWinEnter * silent! loadview
 augroup END
+
+" Set CWD to be the git root, or it not a git project, just the directory of the file
+function! s:GitOrFileDir()
+    let l:filedir = expand('%:p:h')
+    if empty(l:filedir)
+        return getcwd()
+    endif
+
+    let l:git_root = system('git -C ' . shellescape(l:filedir) . ' rev-parse --show-toplevel 2>/dev/null')
+    let l:git_root = substitute(l:git_root, '\n', '', 'g')
+
+    if !empty(l:git_root) && isdirectory(l:git_root)
+        return l:git_root
+    else
+        return l:filedir
+    endif
+endfunction
+
+autocmd BufEnter,BufWinEnter * silent! execute 'lcd' . s:GitOrFileDir()
 
 " Pull in my other vim files
 source ~/Documents/repos/dotfiles/vim/dracula_colors.vim
