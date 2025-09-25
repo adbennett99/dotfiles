@@ -63,6 +63,25 @@ let g:netrw_keepdir=0 " Use vim CWD
 
 nnoremap <Leader>e :Explore .<CR>
 
+" Minimal fuzzy finding in source code
+function! SearchAllFiles(query)
+    if empty(a:query)
+        echo "No search query provided."
+        return
+    endif
+
+    execute 'vimgrep /' . escape(a:query, '/\') . '/j **/*'
+
+    if len(getqflist()) > 0
+        copen
+    else
+        echo "No matches found for: " . a:query
+    endif
+endfunction
+
+nnoremap <leader>s :call SearchAllFiles(input('Search for: '))<CR>
+autocmd FileType qf nnoremap <buffer> <CR> <CR>zz:cclose<CR>
+
 " Setup cold folding. Use space bar to fold. Folds should save when closing buffer
 set foldmethod=indent
 set foldlevel=99
