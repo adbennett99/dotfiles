@@ -89,8 +89,8 @@ nnoremap <space> za
 
 augroup remember_folds
     autocmd!
-    autocmd BufWinLeave * mkview
-    autocmd BufWinEnter * silent! loadview
+    autocmd BufWinLeave * if &buftype == '' && &filetype != 'qf' | mkview | endif
+    autocmd BufWinEnter * if &buftype == '' && &filetype != 'qf' | silent! loadview | endif
 augroup END
 
 " Pull in my other vim files
