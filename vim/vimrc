@@ -5,7 +5,11 @@ set mouse=a
 " Styling
 syntax on
 set showmatch
+set number
+set relativenumber
+set cursorline
 
+" Indenting
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
@@ -13,19 +17,36 @@ set expandtab
 set smartindent
 set autoindent
 
-set number
-set relativenumber
-set cursorline
-
-" Tab completion
-set wildmode=longest,list,full
-set wildmenu
-
-" Searching
+" Searching within a file
 set incsearch
 set hlsearch
 
-" Completion stuff
+" Searching system for files 
+set wildmenu
+set path+=**
+
+" Change keybinding for getting out of modes 
+inoremap kj <esc>
+vnoremap kj <esc>
+
+" Change keybinding for switching through open buffers
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
+
+" Change keybinding for yanking/pasting to/from system clipboard
+nnoremap <Leader>p "+p
+vnoremap <Leader>p "+p
+
+nnoremap <Leader>y "+y
+vnoremap <Leader>y "+y
+
+" Change keybindings for navigating splits
+nnoremap <C-h> <C-W>h
+nnoremap <C-j> <C-W>j
+nnoremap <C-k> <C-W>k
+nnoremap <C-l> <C-W>l
+
+" Omnicompletion
 filetype plugin on
 set completeopt=menu,menuone,noselect
 
@@ -33,27 +54,6 @@ inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <Nul> <C-x><C-o>
-
-" Better keybindings for gettings out of modes
-inoremap kj <esc>
-vnoremap kj <esc>
-
-" Better keybindings for buffer management
-nnoremap <Tab> :bnext<CR>
-nnoremap <S-Tab> :bprevious<CR>
-
-" Better keybindings for yanking/pasting to/from system clipboard
-nnoremap <Leader>p "+p
-vnoremap <Leader>p "+p
-
-nnoremap <Leader>y "+y
-vnoremap <Leader>y "+y
-
-" Better keybindings for navigating splits
-nnoremap <C-h> <C-W>h
-nnoremap <C-j> <C-W>j
-nnoremap <C-k> <C-W>k
-nnoremap <C-l> <C-W>l
 
 " Netrw configs
 let g:netrw_liststyle=3 " Tree View
@@ -75,27 +75,7 @@ augroup remember_folds
     autocmd BufWinEnter * silent! loadview
 augroup END
 
-" Set CWD to be the git root, or it not a git project, just the directory of the file
-function! s:GitOrFileDir()
-    let l:filedir = expand('%:p:h')
-    if empty(l:filedir)
-        return getcwd()
-    endif
-
-    let l:git_root = system('git -C ' . shellescape(l:filedir) . ' rev-parse --show-toplevel 2>/dev/null')
-    let l:git_root = substitute(l:git_root, '\n', '', 'g')
-
-    if !empty(l:git_root) && isdirectory(l:git_root)
-        return l:git_root
-    else
-        return l:filedir
-    endif
-endfunction
-
-autocmd BufEnter,BufWinEnter * silent! execute 'lcd' . s:GitOrFileDir()
-
 " Pull in my other vim files
 source ~/Documents/repos/dotfiles/vim/dracula_colors.vim
 source ~/Documents/repos/dotfiles/vim/git_magic.vim
 source ~/Documents/repos/dotfiles/vim/status_line.vim
-source ~/Documents/repos/dotfiles/vim/fuzzy_finder.vim
