@@ -15,6 +15,8 @@ set showmatch
 set number
 set relativenumber
 set cursorline
+set scrolloff=8
+set nowrap
 
 " Indenting
 set tabstop=4
