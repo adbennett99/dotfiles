@@ -1,8 +1,8 @@
 set signcolumn=yes
 
-sign define GitAddedLine text=+ texthl=DraculaGreen
-sign define GitModifiedLine text=~ texthl=DraculaCyan
-sign define GitRemovedLine text=- texthl=DraculaRed
+sign define GitAddedLine text=+ texthl=GitDiffAdd
+sign define GitModifiedLine text=~ texthl=GitDiffChange
+sign define GitRemovedLine text=- texthl=GitDiffRemove
 
 function! s:IsGitFile(filename, dir) abort
     if !filereadable(a:filename)

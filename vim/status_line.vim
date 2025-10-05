@@ -1,28 +1,12 @@
-" Based on https://github.com/vim-airline/vim-airline
 " -------------------------------------------------------------- Status Line
 function! ModeName()
     let l:mode_map = {
         \ 'n'  : 'NORMAL',
-        \ 'no' : 'OPERATOR PENDING',
         \ 'v'  : 'VISUAL',
         \ 'V'  : 'V-LINE',
         \ "\<C-v>": 'V-BLOCK',
-        \ 's'  : 'SELECT',
-        \ 'S'  : 'S-LINE',
-        \ "\<C-s>": 'S-BLOCK',
         \ 'i'  : 'INSERT',
-        \ 'ic' : 'INSERT',
-        \ 'ix' : 'INSERT',
-        \ 'R'  : 'REPLACE',
-        \ 'Rv' : 'V-REPLACE',
         \ 'c'  : 'COMMAND',
-        \ 'cv' : 'VIM EX',
-        \ 'ce' : 'EX',
-        \ 'r'  : 'PROMPT',
-        \ 'rm' : 'MORE',
-        \ 'r?' : 'CONFIRM',
-        \ '!'  : 'SHELL',
-        \ 't'  : 'TERMINAL'
         \ }
 
     return get(l:mode_map, mode(), mode())
@@ -30,13 +14,13 @@ endfunction
 
 function! ModeHighlight()
     let l:highlight_map = {
-        \ 'n'  : 'DraculaStatusModeDefault',
-        \ 'i'  : 'DraculaStatusModeInsert',
-        \ 'v'  : 'DraculaStatusModeVisual',
-        \ 'V'  : 'DraculaStatusModeVisual',
-        \ "\<C-v>" : 'DraculaStatusModeVisual',
+        \ 'n'  : 'DiffText',
+        \ 'i'  : 'DiffAdd',
+        \ 'v'  : 'DiffChange',
+        \ 'V'  : 'DiffChange',
+        \ "\<C-v>" : 'DiffChange',
         \}
-    return '%#' . get(l:highlight_map, mode(), 'DraculaStatusModeDefault') . '#'
+    return '%#' . get(l:highlight_map, mode(), 'StatusLine') . '#'
 endfunction
 
 function! GetGitInfo()
@@ -65,13 +49,13 @@ function! BuildStatusLine()
     let s = ''
     let s .= ModeHighlight() . ' ' . ModeName() . ' '
 
-    let s .= '%#DraculaStatusGitBranch#'
+    let s .= '%#StatusLine2#'
     let s .= GetGitInfo()
 
-    let s .= '%#DraculaStatusFileName#'
+    let s .= '%#StatusLine#'
     let s .= ' %F%m%=%{&filetype} '
 
-    let s .= '%#DraculaStatusFileEncoding#'
+    let s .= '%#StatusLine2#'
     let s .= ' %{&fileencoding?&fileencoding:&encoding} '
 
     let s .= ModeHighlight()
@@ -88,7 +72,7 @@ function! BuildTabLine()
     let s = ''
     for i in range(1, bufnr('$'))
         if bufexists(i) && buflisted(i)
-            let s .= (i == bufnr('%') ? '%#DraculaTabLineSel#' : '%#DraculaTabLineNotSel#')
+            let s .= (i == bufnr('%') ? '%#TabLineSel#' : '%#TabLine#')
             let s .= ' ' . bufname(i)
 
             if getbufvar(i, '&modified')
@@ -98,8 +82,8 @@ function! BuildTabLine()
             let s .= ' '
         endif
     endfor
-    let s .= '%#DraculaTabLineFill#%='
-    let s .= '%#DraculaTabLineEnd# buffers '
+    let s .= '%#TabLineFill#%='
+    let s .= '%#TabLineSel# buffers '
     return s
 endfunction
 
