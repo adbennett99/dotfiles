@@ -1,4 +1,4 @@
-" -------------------------------------------------------------- Status Line
+" -------------------------------------------------------------- Mode Maps
 function! ModeName()
     let l:mode_map = {
         \ 'n'  : 'NORMAL',
@@ -23,34 +23,19 @@ function! ModeHighlight()
     return '%#' . get(l:highlight_map, mode(), 'StatusLine') . '#'
 endfunction
 
-function! GetGitInfo()
-    let l:dir = expand('%:p:h')
-    while !isdirectory(l:dir . '/.git') && l:dir != '/'
-        let l:dir = fnamemodify(l:dir, ':h')
-    endwhile
-
-    if !isdirectory(l:dir . '/.git')
-        return ''
-    endif
-    
-    let l:line = readfile(l:dir . '/.git/HEAD')[0]
-    let l:branch = split(line, '/')[-1]
-
-    if exists('g:num_added_lines') && (g:num_added_lines > 0 || g:num_removed_lines > 0 || g:num_modified_lines > 0)
-        let l:git_info = '+' . g:num_added_lines . ' -' . g:num_removed_lines . ' ~' . g:num_modified_lines . ' '
-    else
-        let l:git_info = ''
-    endif
-
-    return ' ⎇  ' . substitute(l:branch, '\n', '', '') . ' ' . l:git_info
-endfunction
-
+" -------------------------------------------------------------- Status Line
 function! BuildStatusLine()
     let s = ''
     let s .= ModeHighlight() . ' ' . ModeName() . ' '
 
-    let s .= '%#StatusLine2#'
-    let s .= GetGitInfo()
+    let l:branch = GetGitBranch()
+    if l:branch != ''
+        let l:diff_counts = GetGitDiffCounts()
+
+        let s .= '%#StatusLine2#'
+        let s .= ' ⎇  ' . substitute(l:branch, '\n', '', '')
+        let s .= ' +' . l:diff_counts[0] . ' -' . l:diff_counts[1] . ' ~' . l:diff_counts[2] . ' '
+    endif
 
     let s .= '%#StatusLine#'
     let s .= ' %F%m%=%{&filetype} '
@@ -64,7 +49,6 @@ function! BuildStatusLine()
     return s
 endfunction
 
-set laststatus=2
 let &statusline = "%!BuildStatusLine()"
 
 " -------------------------------------------------------------- Tab Line
@@ -87,5 +71,4 @@ function! BuildTabLine()
     return s
 endfunction
 
-set showtabline=2
 let &tabline = "%!BuildTabLine()"

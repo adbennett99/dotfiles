@@ -1,8 +1,13 @@
 set nocompatible
 set encoding=utf-8
 set mouse=a
+
 set termguicolors
 colorscheme catppuccin_mocha
+
+set laststatus=2
+set showtabline=2
+set signcolumn=yes
 
 " Styling
 syntax on
@@ -96,6 +101,5 @@ augroup remember_folds
 augroup END
 
 " Pull in my other vim files
-"source ~/Documents/repos/dotfiles/vim/dracula_colors.vim
 source ~/Documents/repos/dotfiles/vim/git_magic.vim
 source ~/Documents/repos/dotfiles/vim/status_line.vim

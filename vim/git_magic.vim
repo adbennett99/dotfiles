@@ -1,8 +1,46 @@
-set signcolumn=yes
-
+" -------------------------------------------------------------- Define Signs
 sign define GitAddedLine text=+ texthl=GitDiffAdd
 sign define GitModifiedLine text=~ texthl=GitDiffChange
 sign define GitRemovedLine text=- texthl=GitDiffRemove
+
+let s:num_added_lines = 0
+let s:num_removed_lines = 0
+let s:num_modified_lines = 0
+
+" -------------------------------------------------------------- Basic Functions
+function! s:FindGitRoot() abort
+    let l:dir = expand('%:p:h')
+    while !isdirectory(l:dir . '/.git') && l:dir != '/'
+        let l:dir = fnamemodify(l:dir, ':h')
+    endwhile
+
+    if !isdirectory(l:dir . '/.git')
+        return ''
+    endif
+
+    return l:dir
+endfunction
+
+function! GetGitBranch() abort
+    let l:git_root = s:FindGitRoot()
+    if l:git_root == ''
+        return ''
+    endif
+
+    let l:line = readfile(l:git_root . '/.git/HEAD')[0]
+    let l:branch = split(line, '/')[-1]
+
+    return l:branch
+endfunction
+
+function! GetGitDiffCounts() abort
+    let l:git_root = s:FindGitRoot()
+    if l:git_root == ''
+        return [0, 0, 0]
+    endif
+
+    return [s:num_added_lines, s:num_removed_lines, s:num_modified_lines]
+endfunction
 
 function! s:IsGitFile(filename, dir) abort
     if !filereadable(a:filename)
@@ -50,9 +88,9 @@ function! GitSignsUpdate() abort
 
     " Clear everything in current buffer
     execute 'sign unplace * buffer=' . l:buf
-    let g:num_added_lines=0
-    let g:num_removed_lines=0
-    let g:num_modified_lines=0
+    let s:num_added_lines=0
+    let s:num_removed_lines=0
+    let s:num_modified_lines=0
 
     " If the file is tracked by git, get its diff.
     " note: this will always be the file on disk, so not necessarily the file in the buffer
@@ -93,20 +131,20 @@ function! GitSignsUpdate() abort
                     endif
 
                     execute 'sign place ' . l:id . ' line=' . l:place . ' name=GitRemovedLine buffer=' . l:buf
-                    let g:num_removed_lines += l:oldCount
+                    let s:num_removed_lines += l:oldCount
                     let l:id += 1
                 elseif l:oldCount == 0 && l:newCount > 0
                     " Pure addition: mark added lines
                     for l:lnum in range(l:newStart, l:newStart + l:newCount - 1)
                         execute 'sign place ' . l:id . ' line=' . l:lnum . ' name=GitAddedLine buffer=' . l:buf
-                        let g:num_added_lines += 1
+                        let s:num_added_lines += 1
                         let l:id += 1
                     endfor
                 else
                     " Change (both sides non-zero): mark new lines in the changed block as 'change'
                     for l:lnum in range(l:newStart, l:newStart + l:newCount - 1)
                         execute 'sign place ' . l:id . ' line=' . l:lnum . ' name=GitModifiedLine buffer=' . l:buf
-                        let g:num_modified_lines += 1
+                        let s:num_modified_lines += 1
                         let l:id += 1
                     endfor
                 endif
@@ -120,6 +158,7 @@ augroup GitSignAutoload
     autocmd BufReadPost,BufWritePost * call GitSignsUpdate()
 augroup end
 
+" -------------------------------------------------------------- Git Blame
 function! ShowGitBlame()
     let l:file = expand("%:p")
     let l:dir = fnamemodify(l:file, ':h')
