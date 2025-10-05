@@ -1,3 +1,4 @@
+" https://github.com/catppuccin/vim/blob/main/colors/catppuccin_mocha.vim
 " Name: catppuccin_mocha.vim
 
 set background=dark
