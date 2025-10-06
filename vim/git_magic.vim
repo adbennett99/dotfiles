@@ -56,9 +56,9 @@ function! GitSignsUpdate() abort
 
     " Clear everything in current buffer
     execute 'sign unplace * buffer=' . l:buf
-    let s:num_added_lines=0
-    let s:num_removed_lines=0
-    let s:num_modified_lines=0
+    let g:num_added_lines = 0
+    let g:num_removed_lines = 0
+    let g:num_modified_lines = 0
 
     " If the file is tracked by git, get its diff.
     " note: this will always be the file on disk, so not necessarily the file in the buffer
@@ -104,20 +104,20 @@ function! GitSignsUpdate() abort
                     endif
 
                     execute 'sign place ' . l:id . ' line=' . l:place . ' name=GitRemovedLine buffer=' . l:buf
-                    let s:num_removed_lines += l:oldCount
+                    let g:num_removed_lines += l:oldCount
                     let l:id += 1
                 elseif l:oldCount == 0 && l:newCount > 0
                     " Pure addition: mark added lines
                     for l:lnum in range(l:newStart, l:newStart + l:newCount - 1)
                         execute 'sign place ' . l:id . ' line=' . l:lnum . ' name=GitAddedLine buffer=' . l:buf
-                        let s:num_added_lines += 1
+                        let g:num_added_lines += 1
                         let l:id += 1
                     endfor
                 else
                     " Change (both sides non-zero): mark new lines in the changed block as 'change'
                     for l:lnum in range(l:newStart, l:newStart + l:newCount - 1)
                         execute 'sign place ' . l:id . ' line=' . l:lnum . ' name=GitModifiedLine buffer=' . l:buf
-                        let s:num_modified_lines += 1
+                        let g:num_modified_lines += 1
                         let l:id += 1
                     endfor
                 endif
@@ -130,6 +130,69 @@ augroup GitSignAutoload
     autocmd!
     autocmd BufReadPost,BufWritePost * call GitSignsUpdate()
 augroup end
+
+" -------------------------------------------------------------- Git hunk preview
+function! ShowGitHunkForCurrentLine() abort
+    let l:file = expand('%')
+    let l:dir = fnamemodify(l:file, ':h')
+
+    let l:isGitFile = s:IsGitFile(l:file, l:dir)
+    if !l:isGitFile
+        return
+    endif
+
+    let l:lnum = line('.')
+
+    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=3 -- ' . shellescape(l:file))
+
+    let l:hunk = []
+    let l:current_hunk = []
+    let l:current_range = {}
+    let l:current_header = ''
+    let l:found_first_hunk = 0
+
+    for l:line in l:diff
+        if l:line =~# '^@@'
+
+            let l:found_first_hunk = 1
+
+            if !empty(l:current_hunk)
+                call add(l:hunk, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
+            endif
+
+            let l:current_header = l:line
+            let l:current_hunk = [l:line]
+
+            let l:m = matchlist(l:line, '^@@\s\+-\(\d\+\)\(,\(\d\+\)\)\?\s\++\(\d\+\)\(,\(\d\+\)\)\?\s\+@@')
+            if len(l:m) >= 7
+                let l:newStart = str2nr(l:m[4])
+                let l:newCount = len(l:m[6]) ? str2nr(l:m[6]) : 1
+                let l:current_range = {'start': l:newStart, 'end': l:newStart + l:newCount - 1}
+            endif
+        elseif l:found_first_hunk
+            call add(l:current_hunk, l:line)
+        endif
+    endfor
+
+    if !empty(l:current_hunk)
+        call add(l:hunk, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
+    endif
+
+    let l:match = filter(copy(l:hunk), {_, v -> l:lnum >= v.range.start && l:lnum <= v.range.end})
+    if empty(l:match)
+        echo "No hunk for current line"
+        return
+    endif
+
+    belowright new [git hunk]
+    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+    call setline(1, l:match[0].lines)
+    normal! gg
+    resize 15
+
+endfunction
+
+nnoremap <leader>hp :call ShowGitHunkForCurrentLine()<CR>
 
 " -------------------------------------------------------------- Git Blame
 function! ShowGitBlame()
