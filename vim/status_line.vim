@@ -30,11 +30,9 @@ function! BuildStatusLine()
 
     let l:branch = GetGitBranch()
     if l:branch != ''
-        let l:diff_counts = GetGitDiffCounts()
-
         let s .= '%#StatusLine2#'
         let s .= ' ⎇  ' . substitute(l:branch, '\n', '', '')
-        let s .= ' +' . l:diff_counts[0] . ' -' . l:diff_counts[1] . ' ~' . l:diff_counts[2] . ' '
+        let s .= ' +' . g:num_added_lines . ' -' . g:num_removed_lines . ' ~' . g:num_modified_lines . ' '
     endif
 
     let s .= '%#StatusLine#'
