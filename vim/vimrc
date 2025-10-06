@@ -26,7 +26,7 @@ set expandtab
 set smartindent
 set autoindent
 
-" Searching within a file
+" Searching
 set incsearch
 set hlsearch
 set ignorecase
@@ -34,6 +34,7 @@ set smartcase
 
 " Searching system for files 
 set wildmenu
+set wildignore+=.git/**
 set path+=**
 nnoremap <leader>f :find 
 
@@ -90,7 +91,7 @@ function! SearchAllFiles(query)
     endif
 endfunction
 
-nnoremap <leader>s :call SearchAllFiles(input('Search for: '))<CR>
+nnoremap <leader>g :call SearchAllFiles(input('Search for: '))<CR>
 autocmd FileType qf nnoremap <buffer> <CR> <CR>zz:cclose<CR>
 
 " Setup cold folding. Use space bar to fold. Folds should save when closing buffer
