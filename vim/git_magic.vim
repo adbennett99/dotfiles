@@ -3,12 +3,12 @@ sign define GitAddedLine text=+ texthl=GitDiffAdd
 sign define GitModifiedLine text=~ texthl=GitDiffChange
 sign define GitRemovedLine text=- texthl=GitDiffRemove
 
-let s:num_added_lines = 0
-let s:num_removed_lines = 0
-let s:num_modified_lines = 0
+let g:num_added_lines = 0
+let g:num_removed_lines = 0
+let g:num_modified_lines = 0
 
 " -------------------------------------------------------------- Basic Functions
-function! s:FindGitRoot() abort
+function! GetGitBranch() abort
     let l:dir = expand('%:p:h')
     while !isdirectory(l:dir . '/.git') && l:dir != '/'
         let l:dir = fnamemodify(l:dir, ':h')
@@ -18,29 +18,12 @@ function! s:FindGitRoot() abort
         return ''
     endif
 
-    return l:dir
-endfunction
-
-function! GetGitBranch() abort
-    let l:git_root = s:FindGitRoot()
-    if l:git_root == ''
-        return ''
-    endif
-
-    let l:line = readfile(l:git_root . '/.git/HEAD')[0]
+    let l:line = readfile(l:dir . '/.git/HEAD')[0]
     let l:branch = split(line, '/')[-1]
 
     return l:branch
 endfunction
 
-function! GetGitDiffCounts() abort
-    let l:git_root = s:FindGitRoot()
-    if l:git_root == ''
-        return [0, 0, 0]
-    endif
-
-    return [s:num_added_lines, s:num_removed_lines, s:num_modified_lines]
-endfunction
 
 function! s:IsGitFile(filename, dir) abort
     if !filereadable(a:filename)
@@ -58,23 +41,8 @@ function! s:IsGitFile(filename, dir) abort
     return 1
 endfunction
 
-function! s:BufferLineCount(bufnr) abort
-    let l:info = getbufinfo(a:bufnr)
-
-    if !empty(l:info) && has_key(l:info[0], 'linecount')
-        return l:info[0].linecount
-    endif
-
-    " Fallback if buffer info missing
-    if a:bufnr == bufnr('%')
-        return line('$')
-    endif
-
-    return 0
-endfunction
-
+" -------------------------------------------------------------- Git signs in sign column
 function! GitSignsUpdate() abort
-
     let l:buf = bufnr('%')
 
     " Skip unsuitable buffers
@@ -99,14 +67,19 @@ function! GitSignsUpdate() abort
         return
     endif
 
-    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=0 -- ' . shellescape(l:file))
-
-    let l:lastline = s:BufferLineCount(l:buf)
-    if l:lastline <= 0
+    let l:info = getbufinfo(l:buf)
+    if !empty(l:info) && has_key(l:info[0], 'linecount')
+        let l:lastline = l:info[0].linecount
+    else
         return
     endif
 
+    " Fallback if buffer info missing
+    " if a:bufnr == bufnr('%')
+    "    return line('$')
+
     " Parse the diff
+    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=0 -- ' . shellescape(l:file))
     let l:id = 1000
     for l:line in l:diff
         if l:line =~# '^@@'
