@@ -29,6 +29,8 @@ set autoindent
 " Searching within a file
 set incsearch
 set hlsearch
+set ignorecase
+set smartcase
 
 " Searching system for files 
 set wildmenu
