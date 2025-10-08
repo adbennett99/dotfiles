@@ -104,5 +104,5 @@ augroup remember_folds
 augroup END
 
 " Pull in my other vim files
-source ~/Documents/repos/dotfiles/vim/git_magic.vim
-source ~/Documents/repos/dotfiles/vim/status_line.vim
+source ~/.vim/git_magic.vim
+source ~/.vim/status_line.vim
