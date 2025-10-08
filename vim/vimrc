@@ -2,7 +2,12 @@ set nocompatible
 set encoding=utf-8
 set mouse=a
 
-set termguicolors
+if exists('$TERM') && $TERM =~? 'truecolor'
+    set termguicolors
+else
+    set notermguicolors
+endif
+
 colorscheme catppuccin_mocha
 
 set laststatus=2
