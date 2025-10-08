@@ -46,13 +46,6 @@ vnoremap kj <esc>
 nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
 
-" Change keybinding for yanking/pasting to/from system clipboard
-nnoremap <Leader>p "+p
-vnoremap <Leader>p "+p
-
-nnoremap <Leader>y "+y
-vnoremap <Leader>y "+y
-
 " Change keybindings for navigating splits
 nnoremap <C-h> <C-W>h
 nnoremap <C-j> <C-W>j
