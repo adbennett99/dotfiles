@@ -34,7 +34,7 @@ set smartcase
 
 " Searching system for files 
 set wildmenu
-set wildignore+=.git/**
+set wildignore+=**/.git/**,**/venv/**,**/vendor/**,**/__pycache__/**
 set path+=**
 nnoremap <leader>f :find 
 
