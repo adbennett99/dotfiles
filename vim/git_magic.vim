@@ -143,7 +143,7 @@ function! ShowGitHunkForCurrentLine() abort
 
     let l:lnum = line('.')
 
-    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=3 -- ' . shellescape(l:file))
+    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=0 -- ' . shellescape(l:file))
 
     let l:hunk = []
     let l:current_hunk = []
