@@ -57,12 +57,9 @@ nnoremap <C-j> <C-W>j
 nnoremap <C-k> <C-W>k
 nnoremap <C-l> <C-W>l
 
-" Omnicompletion
+" Completion
 filetype plugin on
 set completeopt=menu,menuone,noselect
-
-inoremap <expr> <C-n> pumvisible() ? "\<C-n>" : "\<C-x>\<C-o>"
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 " Netrw configs
 let g:netrw_liststyle=3 " Tree View
