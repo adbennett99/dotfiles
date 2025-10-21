@@ -110,33 +110,25 @@ let g:netrw_fastbrowse=0 " Always obtain fresh directory listings
 nnoremap <Leader>e :Explore .<CR>
 
 " -------------------------------------------------------------- Status line
-function! ModeName()
+function! ModeMap()
     let l:mode_map = {
-        \ 'n'  : 'NORMAL',
-        \ 'v'  : 'VISUAL',
-        \ 'V'  : 'V-LINE',
-        \ "\<C-v>": 'V-BLOCK',
-        \ 'i'  : 'INSERT',
-        \ 'c'  : 'COMMAND',
+        \ 'n'  : ['NORMAL', 'DiffText'],
+        \ 'i'  : ['INSERT', 'DiffAdd'],
+        \ 'v'  : ['VISUAL', 'DiffChange'],
+        \ 'V'  : ['V-LINE', 'DiffChange'],
+        \ "\<C-v>": ['V-BLOCK', 'DiffChange'],
+        \ 'c'  : ['COMMAND', 'StatusLine'],
         \ }
 
-    return get(l:mode_map, mode(), mode())
-endfunction
-
-function! ModeHighlight()
-    let l:highlight_map = {
-        \ 'n'  : 'DiffText',
-        \ 'i'  : 'DiffAdd',
-        \ 'v'  : 'DiffChange',
-        \ 'V'  : 'DiffChange',
-        \ "\<C-v>" : 'DiffChange',
-        \}
-    return '%#' . get(l:highlight_map, mode(), 'StatusLine') . '#'
+    let l:mode = mode()
+    return get(l:mode_map, l:mode, [l:mode, 'StatusLine'])
 endfunction
 
 function! BuildStatusLine()
+    let l:mode_info = ModeMap()
+
     let s = ''
-    let s .= ModeHighlight() . ' ' . ModeName() . ' '
+    let s .= '%#' . l:mode_info[1] . '# ' . l:mode_info[0] . ' '
 
     let l:branch = GetGitBranch()
     if l:branch != ''
@@ -151,7 +143,7 @@ function! BuildStatusLine()
     let s .= '%#StatusLine2#'
     let s .= ' %{&fileencoding?&fileencoding:&encoding} '
 
-    let s .= ModeHighlight()
+    let s .= '%#' . l:mode_info[1] . '#'
     let s .= ' In: %l/%L (%c) '
 
     return s
