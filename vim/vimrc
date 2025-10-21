@@ -67,6 +67,7 @@ function! GrepFromCwd()
         \ "-rnI",
         \ "--exclude-dir=.git",
         \ "--exclude-dir=vendor",
+        \ "--exclude-dir=venv",
         \ "--exclude-dir=__pycache__",
         \ "--exclude='*.swp'",
         \ shellescape(l:search),
