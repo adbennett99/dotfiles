@@ -55,22 +55,40 @@ set path+=**
 nnoremap <leader>f :find 
 
 " Grep searching within CWD
-function! SearchAllFiles(query)
-    if empty(a:query)
-        echo "No search query provided."
+function! GrepFromCwd()
+    let l:search = input('Grep for: ')
+    if empty(l:search)
+        echo "Search cancelled"
         return
     endif
 
-    execute 'vimgrep /' . escape(a:query, '/\') . '/j **/*'
+    let l:cmd = join([
+        \ "grep",
+        \ "-rnI",
+        \ "--exclude-dir=.git",
+        \ "--exclude-dir=vendor",
+        \ "--exclude-dir=__pycache__",
+        \ "--exclude='*.swp'",
+        \ shellescape(l:search),
+        \ "."
+    \ ], " ")
 
-    if len(getqflist()) > 0
-        copen
-    else
-        echo "No matches found for: " . a:query
+    let l:output = systemlist(l:cmd)
+
+    if v:shell_error != 0
+        redraw
+        echohl WarningMsg | echom 'No matches found.' | echohl None
+        return
     endif
+
+    set grepformat=%f:%l:%m
+
+    call setqflist([], 'r', {'lines': l:output, 'title': 'Grep results'})
+
+    copen
 endfunction
 
-nnoremap <leader>g :call SearchAllFiles(input('Search for: '))<CR>
+nnoremap <leader>g :call GrepFromCwd()<CR>
 autocmd FileType qf nnoremap <buffer> <CR> <CR>zz:cclose<CR>
 
 " -------------------------------------------------------------- Completion (Ctrl + N)
