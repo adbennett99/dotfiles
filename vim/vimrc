@@ -10,8 +10,8 @@ endif
 
 colorscheme catppuccin_mocha
 
+set showtabline=1 " Default. Only show tabline when there is more than one tab
 set laststatus=2
-set showtabline=2
 set signcolumn=yes
 
 " Styling
@@ -101,6 +101,57 @@ augroup remember_folds
     autocmd BufWinEnter * if &buftype == '' && &filetype != 'qf' | silent! loadview | endif
 augroup END
 
+" -------------------------------------------------------------- Status line
+function! ModeName()
+    let l:mode_map = {
+        \ 'n'  : 'NORMAL',
+        \ 'v'  : 'VISUAL',
+        \ 'V'  : 'V-LINE',
+        \ "\<C-v>": 'V-BLOCK',
+        \ 'i'  : 'INSERT',
+        \ 'c'  : 'COMMAND',
+        \ }
+
+    return get(l:mode_map, mode(), mode())
+endfunction
+
+function! ModeHighlight()
+    let l:highlight_map = {
+        \ 'n'  : 'DiffText',
+        \ 'i'  : 'DiffAdd',
+        \ 'v'  : 'DiffChange',
+        \ 'V'  : 'DiffChange',
+        \ "\<C-v>" : 'DiffChange',
+        \}
+    return '%#' . get(l:highlight_map, mode(), 'StatusLine') . '#'
+endfunction
+
+function! BuildStatusLine()
+    let s = ''
+    let s .= ModeHighlight() . ' ' . ModeName() . ' '
+
+    let l:branch = GetGitBranch()
+    if l:branch != ''
+        let s .= '%#StatusLine2#'
+        let s .= ' ⎇  ' . substitute(l:branch, '\n', '', '')
+        let s .= ' +' . g:num_added_lines . ' -' . g:num_removed_lines . ' ~' . g:num_modified_lines . ' '
+    endif
+
+    let s .= '%#StatusLine#'
+    let s .= ' %F%m%=%{&filetype} '
+
+    let s .= '%#StatusLine2#'
+    let s .= ' %{&fileencoding?&fileencoding:&encoding} '
+
+    let s .= ModeHighlight()
+    let s .= ' In: %l/%L (%c) '
+
+    return s
+endfunction
+
+let &statusline = "%!BuildStatusLine()"
+" -------------------------------------------------------------- Status line
+
 " Pull in my other vim files
 source ~/.vim/git_magic.vim
-source ~/.vim/status_line.vim
+
