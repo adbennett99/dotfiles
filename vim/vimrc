@@ -2,6 +2,18 @@ set nocompatible
 set encoding=utf-8
 set mouse=a
 
+" -------------------------------------------------------------- Keybind Remappings
+" Getting out of modes
+inoremap kj <esc>
+vnoremap kj <esc>
+
+" Navigating splits
+nnoremap <C-h> <C-W>h
+nnoremap <C-j> <C-W>j
+nnoremap <C-k> <C-W>k
+nnoremap <C-l> <C-W>l
+
+" -------------------------------------------------------------- Styling
 if exists('$TERM') && $TERM =~? 'truecolor'
     set termguicolors
 else
@@ -10,11 +22,6 @@ endif
 
 colorscheme catppuccin_mocha
 
-set showtabline=1 " Default. Only show tabline when there is more than one tab
-set laststatus=2
-set signcolumn=yes
-
-" Styling
 syntax on
 set showmatch
 set number
@@ -23,7 +30,11 @@ set cursorline
 set scrolloff=8
 set nowrap
 
-" Indenting
+set showtabline=1
+set laststatus=2
+set signcolumn=yes
+
+" -------------------------------------------------------------- Indenting
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
@@ -31,47 +42,19 @@ set expandtab
 set smartindent
 set autoindent
 
-" Searching
+" -------------------------------------------------------------- Searching
 set incsearch
 set hlsearch
 set ignorecase
 set smartcase
 
-" Completion
-filetype plugin on
-set completeopt=menu,menuone,noselect
-
-" Code folding
-set foldmethod=indent
-set foldlevel=99
-
-" Change keybinding for getting out of modes 
-inoremap kj <esc>
-vnoremap kj <esc>
-
-" Change keybindings for navigating splits
-nnoremap <C-h> <C-W>h
-nnoremap <C-j> <C-W>j
-nnoremap <C-k> <C-W>k
-nnoremap <C-l> <C-W>l
-
-" Netrw configs
-let g:netrw_liststyle=3 " Tree View
-let g:netrw_preview=1 " Open previews in vertical split
-let g:netrw_alto=0 " Open preview in vertical split
-let g:netrw_altv=1 " Open vertical splits to right of current buffer
-let g:netrw_keepdir=1 " Use vim CWD
-let g:netrw_fastbrowse=0 " Always obtain fresh directory listings
-
-nnoremap <Leader>e :Explore .<CR>
-
-" Searching system for files 
+" File Searching
 set wildmenu
 set wildignore+=**/.git/**,**/venv/**,**/vendor/**,**/__pycache__/**
 set path+=**
 nnoremap <leader>f :find 
 
-" Minimal fuzzy finding in source code
+" Grep searching within CWD
 function! SearchAllFiles(query)
     if empty(a:query)
         echo "No search query provided."
@@ -89,6 +72,24 @@ endfunction
 
 nnoremap <leader>g :call SearchAllFiles(input('Search for: '))<CR>
 autocmd FileType qf nnoremap <buffer> <CR> <CR>zz:cclose<CR>
+
+" -------------------------------------------------------------- Completion (Ctrl + N)
+filetype plugin on
+set completeopt=menu,menuone,noselect
+
+" -------------------------------------------------------------- Code Folding (za)
+set foldmethod=indent
+set foldlevel=99
+
+" -------------------------------------------------------------- Netrw Config
+let g:netrw_liststyle=3 " Tree View
+let g:netrw_preview=1 " Open previews in vertical split
+let g:netrw_alto=0 " Open preview in vertical split
+let g:netrw_altv=1 " Open vertical splits to right of current buffer
+let g:netrw_keepdir=1 " Use vim CWD
+let g:netrw_fastbrowse=0 " Always obtain fresh directory listings
+
+nnoremap <Leader>e :Explore .<CR>
 
 " -------------------------------------------------------------- Status line
 function! ModeName()
@@ -139,7 +140,7 @@ function! BuildStatusLine()
 endfunction
 
 let &statusline = "%!BuildStatusLine()"
-" -------------------------------------------------------------- Status line
 
-" Pull in my other vim files
+" -------------------------------------------------------------- Pull in other vim files
 source ~/.vim/git_magic.vim
+
