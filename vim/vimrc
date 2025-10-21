@@ -37,29 +37,23 @@ set hlsearch
 set ignorecase
 set smartcase
 
-" Searching system for files 
-set wildmenu
-set wildignore+=**/.git/**,**/venv/**,**/vendor/**,**/__pycache__/**
-set path+=**
-nnoremap <leader>f :find 
+" Completion
+filetype plugin on
+set completeopt=menu,menuone,noselect
+
+" Code folding
+set foldmethod=indent
+set foldlevel=99
 
 " Change keybinding for getting out of modes 
 inoremap kj <esc>
 vnoremap kj <esc>
-
-" Change keybinding for switching through open buffers
-nnoremap <Tab> :bnext<CR>
-nnoremap <S-Tab> :bprevious<CR>
 
 " Change keybindings for navigating splits
 nnoremap <C-h> <C-W>h
 nnoremap <C-j> <C-W>j
 nnoremap <C-k> <C-W>k
 nnoremap <C-l> <C-W>l
-
-" Completion
-filetype plugin on
-set completeopt=menu,menuone,noselect
 
 " Netrw configs
 let g:netrw_liststyle=3 " Tree View
@@ -70,6 +64,12 @@ let g:netrw_keepdir=1 " Use vim CWD
 let g:netrw_fastbrowse=0 " Always obtain fresh directory listings
 
 nnoremap <Leader>e :Explore .<CR>
+
+" Searching system for files 
+set wildmenu
+set wildignore+=**/.git/**,**/venv/**,**/vendor/**,**/__pycache__/**
+set path+=**
+nnoremap <leader>f :find 
 
 " Minimal fuzzy finding in source code
 function! SearchAllFiles(query)
@@ -89,17 +89,6 @@ endfunction
 
 nnoremap <leader>g :call SearchAllFiles(input('Search for: '))<CR>
 autocmd FileType qf nnoremap <buffer> <CR> <CR>zz:cclose<CR>
-
-" Setup cold folding. Use space bar to fold. Folds should save when closing buffer
-set foldmethod=indent
-set foldlevel=99
-nnoremap <space> za
-
-augroup remember_folds
-    autocmd!
-    autocmd BufWinLeave * if &buftype == '' && &filetype != 'qf' | mkview | endif
-    autocmd BufWinEnter * if &buftype == '' && &filetype != 'qf' | silent! loadview | endif
-augroup END
 
 " -------------------------------------------------------------- Status line
 function! ModeName()
@@ -154,4 +143,3 @@ let &statusline = "%!BuildStatusLine()"
 
 " Pull in my other vim files
 source ~/.vim/git_magic.vim
-
