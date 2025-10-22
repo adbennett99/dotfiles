@@ -48,12 +48,17 @@ elif [ -n "$ZSH_VERSION" ]; then
   PROMPT='${LIGHT_BLUE}[%n@%m]${RESET} ${BLUE}%~${RESET} $(git_branch)${MAGENTA}≫${RESET} '
 fi
 
+
+# -------------------------------------------------------------- fzf integration if installed
+# TBD
+#
+# -------------------------------------------------------------- Other
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+
 # -------------------------------------------------------------- Aliases
 alias ls='ls --color'
 alias ll='ls -alF'
 alias repos='cd ~/Documents/repos'
 alias k='kubectl'
 
-# -------------------------------------------------------------- Other
-export HISTSIZE=10000
-export HISTFILESIZE=20000
