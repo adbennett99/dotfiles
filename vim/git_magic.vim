@@ -133,62 +133,27 @@ augroup end
 
 " -------------------------------------------------------------- Git hunk preview
 function! ShowGitHunkForCurrentLine() abort
-    let l:file = expand('%')
-    let l:dir = fnamemodify(l:file, ':h')
+    let l:file = expand('%:p')
+    let l:line = line('.')
+    let l:git_root = system('git rev-parse --show-toplevel 2>/dev/null')
+    let l:git_root = substitute(l:git_root, '\n', '', '')
 
-    let l:isGitFile = s:IsGitFile(l:file, l:dir)
-    if !l:isGitFile
+    if empty(l:git_root)
+        echo "Not inside a git repository." 
         return
     endif
 
-    let l:lnum = line('.')
+    let l:git_cmd = 'git -C ' . shellescape(l:git_root) . ' diff --color=always --unified=0 -- ' . shellescape(l:file)
+    let l:awk_cmd = 'awk -v l=' . l:line . ' ''/(\x1b\[[0-9;]*m)*@@/ { match($0, /\+([0-9]+)(,([0-9]+))?/, m); new_start = m[1]; new_count = (m[3] ? m[3] : 1); end_line = new_start + new_count; in_hunk = (l >= new_start && l < end_line); } in_hunk { print }'''
 
-    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=0 -- ' . shellescape(l:file))
+    let l:cmd = l:git_cmd . ' | ' . l:awk_cmd
 
-    let l:hunk = []
-    let l:current_hunk = []
-    let l:current_range = {}
-    let l:current_header = ''
-    let l:found_first_hunk = 0
-
-    for l:line in l:diff
-        if l:line =~# '^@@'
-
-            let l:found_first_hunk = 1
-
-            if !empty(l:current_hunk)
-                call add(l:hunk, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
-            endif
-
-            let l:current_header = l:line
-            let l:current_hunk = [l:line]
-
-            let l:m = matchlist(l:line, '^@@\s\+-\(\d\+\)\(,\(\d\+\)\)\?\s\++\(\d\+\)\(,\(\d\+\)\)\?\s\+@@')
-            if len(l:m) >= 7
-                let l:newStart = str2nr(l:m[4])
-                let l:newCount = len(l:m[6]) ? str2nr(l:m[6]) : 1
-                let l:current_range = {'start': l:newStart, 'end': l:newStart + l:newCount - 1}
-            endif
-        elseif l:found_first_hunk
-            call add(l:current_hunk, l:line)
-        endif
-    endfor
-
-    if !empty(l:current_hunk)
-        call add(l:hunk, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
-    endif
-
-    let l:match = filter(copy(l:hunk), {_, v -> l:lnum >= v.range.start && l:lnum <= v.range.end})
-    if empty(l:match)
-        echo "No hunk for current line"
-        return
-    endif
-
-    belowright new [git hunk]
-    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
-    call setline(1, l:match[0].lines)
-    normal! gg
-    resize 15
+    execute 'belowright terminal bash -c "' . l:cmd . '"'
+    execute 'resize 10'
+    let term_buf = bufnr('%')
+    call setbufvar(term_buf, '&buflisted', 0)
+    call setbufvar(term_buf, '&bufhidden', 'wipe')
+    call setbufvar(term_buf, '&swapfile', 0)
 
 endfunction
 
