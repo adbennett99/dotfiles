@@ -149,7 +149,7 @@ function! ShowGitHunkForCurrentLine() abort
 
     call add(l:hunks, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
 
-    let l:match = filter(copy(l:hunks), {_, v -> l:lnum >= v.range.start && l:lnum < v.range.end})
+    let l:match = filter(copy(l:hunks), {_, v -> l:lnum >= v.range.start && l:lnum <= v.range.end})
     if empty(l:match)
         echo "No hunk for current line"
         return
