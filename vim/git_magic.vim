@@ -7,6 +7,8 @@ let g:num_added_lines = 0
 let g:num_removed_lines = 0
 let g:num_modified_lines = 0
 
+let s:git_hunks_for_buffer = []
+
 " -------------------------------------------------------------- Basic Functions
 function! GetGitBranch() abort
     let l:dir = expand('%:p:h')
@@ -39,6 +41,7 @@ function! GitSignsUpdate() abort
     let g:num_added_lines = 0
     let g:num_removed_lines = 0
     let g:num_modified_lines = 0
+    let s:git_hunks_for_buffer = []
 
     let l:file = expand("%:p")
     let l:dir = fnamemodify(l:file, ':h')
@@ -56,9 +59,25 @@ function! GitSignsUpdate() abort
 
     " Parse the diff
     let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=0 -- ' . shellescape(l:file))
+
     let l:id = 1000
+    let l:found_first_hunk = 0
+    let l:current_header = ''
+    let l:current_hunk = []
+    let l:current_range = {}
+
     for l:line in l:diff
         if l:line =~# '^@@'
+
+            let l:found_first_hunk = 1
+
+            if !empty(l:current_hunk)
+                call add(s:git_hunks_for_buffer, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
+            endif
+
+            let l:current_header = l:line
+            let l:current_hunk = [l:line]
+
             " matchlist indices:
             " 1: oldStart, 3: oldCount, 4: newStart, 6: newCount
             let l:m = matchlist(l:line, '^@@\s\+-\(\d\+\)\(,\(\d\+\)\)\?\s\++\(\d\+\)\(,\(\d\+\)\)\?\s\+@@')
@@ -67,6 +86,8 @@ function! GitSignsUpdate() abort
                 let l:oldCount = len(l:m[3]) ? str2nr(l:m[3]) : 1
                 let l:newStart = str2nr(l:m[4])
                 let l:newCount = len(l:m[6]) ? str2nr(l:m[6]) : 1
+
+                let l:current_range = {'start': l:newStart, 'end': l:newStart + l:newCount}
 
                 if l:oldCount > 0 && l:newCount == 0
                     " Pure deletion: place a single delete sign at the line after deletion (clamped)
@@ -98,8 +119,13 @@ function! GitSignsUpdate() abort
                     endfor
                 endif
             endif
+        elseif l:found_first_hunk
+            call add(l:current_hunk, l:line)
         endif
     endfor
+
+    call add(s:git_hunks_for_buffer, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
+
 endfunction
 
 augroup GitSignAutoload
@@ -110,46 +136,12 @@ augroup end
 " -------------------------------------------------------------- Git hunk preview
 function! ShowGitHunkForCurrentLine() abort
     let l:lnum = line('.')
-    let l:file = expand('%:p')
-    let l:dir = fnamemodify(l:file, ':h')
 
-    if system('git -C ' . shellescape(l:dir) . ' rev-parse --is-inside-work-tree') !~? '^true'
-        return
+    if s:git_hunks_for_buffer == []
+        echohl WarningMsg | echom 'Not a git file.' | echohl None
     endif
 
-    let l:hunks = []
-    let l:current_header = ''
-    let l:current_hunk = []
-    let l:current_range = {}
-    let l:found_first_hunk = 0
-
-    let l:diff = systemlist('git -C ' . shellescape(l:dir) . ' diff --no-color --unified=0 -- ' . shellescape(l:file))
-    for l:line in l:diff
-        if l:line =~# '^@@'
-
-            let l:found_first_hunk = 1
-
-            if !empty(l:current_hunk)
-                call add(l:hunks, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
-            endif
-
-            let l:current_header = l:line
-            let l:current_hunk = [l:line]
-
-            let l:m = matchlist(l:line, '^@@\s\+-\(\d\+\)\(,\(\d\+\)\)\?\s\++\(\d\+\)\(,\(\d\+\)\)\?\s\+@@')
-            if len(l:m) >= 7
-                let l:newStart = str2nr(l:m[4])
-                let l:newCount = len(l:m[6]) ? str2nr(l:m[6]) : 1
-                let l:current_range = {'start': l:newStart, 'end': l:newStart + l:newCount}
-            endif
-        elseif l:found_first_hunk
-            call add(l:current_hunk, l:line)
-        endif
-    endfor
-
-    call add(l:hunks, {'header': l:current_header, 'lines': l:current_hunk, 'range': l:current_range})
-
-    let l:match = filter(copy(l:hunks), {_, v -> l:lnum >= v.range.start && l:lnum <= v.range.end})
+    let l:match = filter(copy(s:git_hunks_for_buffer), {_, v -> l:lnum >= v.range.start && l:lnum <= v.range.end})
     if empty(l:match)
         echo "No hunk for current line"
         return
